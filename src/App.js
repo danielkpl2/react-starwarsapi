@@ -205,7 +205,15 @@ class App extends Component {
                       {this.state.schema.required.map(element =>
                         <td
                           title={this.state.schema.properties[element].description}
-                          key={element}>{this.state.data.results[key][element]}</td>
+                          key={element}>
+                          {this.state.schema.properties[element].type === "array" ? (
+                            <ul className="list-group">
+                              {this.state.data.results[key][element].map(item =>
+                                <li key={item} className="list-group-item"><Gettitle item={item} /></li>
+                              )}
+                            </ul>
+                          ) : (<span>{this.state.data.results[key][element]}</span>)}
+                          </td>
                       )}
                       </tr>
                       )
@@ -215,6 +223,43 @@ class App extends Component {
           ) : ''}
         </div>
       </div>
+    );
+  }
+}
+
+class Gettitle extends Component {
+  constructor(props){
+    super(props);
+
+    this.state = {
+      url: this.props.item,
+      label: this.props.item
+    }
+  }
+
+  componentDidMount(){
+    axios.get(this.props.item)
+    .then(data => {
+      //data.data.name
+      var label = '';
+      if(typeof data.data.name !== 'undefined'){
+        label = data.data.name;
+      }else if (typeof data.data.title !== 'undefined') {
+        label = data.data.title;
+      }
+      this.setState({
+        url: data.data.url,
+        label: label
+      })
+    })
+    .catch(error => {
+      console.error(error);
+    })
+  }
+
+  render(){
+    return(
+      <a href={this.state.url} >{this.state.label}</a>
     );
   }
 }
